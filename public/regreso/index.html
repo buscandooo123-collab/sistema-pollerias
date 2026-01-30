@@ -192,6 +192,15 @@
             font-size: 0.9rem;
         }
 
+        .caja-info {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: 600;
+            color: #92400e;
+        }
+
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -218,6 +227,34 @@
             display: flex;
             align-items: center;
             gap: 5px;
+        }
+
+        .total-entregar {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .total-entregar .monto {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .desglose {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .desglose p {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
         }
 
         @media (max-width: 480px) {
@@ -263,19 +300,12 @@
         </div>
 
         <div class="content">
-            <!-- LISTA DE SALIDAS -->
+            <!-- LISTA DE SALIDAS PENDIENTES -->
             <div id="listaSalidasView">
                 <div class="card">
                     <h3 class="card-title">📦 Salidas Pendientes</h3>
                     <div id="salidasPendientes">
                         <div class="empty-state"><p>No hay salidas pendientes</p></div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3 class="card-title">✅ Mis Registros Completados</h3>
-                    <div id="salidasCompletadas">
-                        <div class="empty-state"><p>No hay registros</p></div>
                     </div>
                 </div>
 
@@ -296,19 +326,19 @@
                     <div class="grid-2">
                         <div class="form-group">
                             <label>🍗 Pechuga</label>
-                            <input type="number" step="0.1" class="form-control" id="regresoPechuga" placeholder="0">
+                            <input type="number" step="0.1" class="form-control" id="regresoPechuga" placeholder="0" oninput="calcularTotalEntregar()">
                         </div>
                         <div class="form-group">
                             <label>🍖 Pierna</label>
-                            <input type="number" step="0.1" class="form-control" id="regresoPierna" placeholder="0">
+                            <input type="number" step="0.1" class="form-control" id="regresoPierna" placeholder="0" oninput="calcularTotalEntregar()">
                         </div>
                         <div class="form-group">
                             <label>🍖 Ala</label>
-                            <input type="number" step="0.1" class="form-control" id="regresoAla" placeholder="0">
+                            <input type="number" step="0.1" class="form-control" id="regresoAla" placeholder="0" oninput="calcularTotalEntregar()">
                         </div>
                         <div class="form-group">
                             <label>🥩 Retazo</label>
-                            <input type="number" step="0.1" class="form-control" id="regresoRetazo" placeholder="0">
+                            <input type="number" step="0.1" class="form-control" id="regresoRetazo" placeholder="0" oninput="calcularTotalEntregar()">
                         </div>
                     </div>
 
@@ -316,15 +346,28 @@
                     <div class="grid-2">
                         <div class="form-group">
                             <label>🥚 Huevos (unidades)</label>
-                            <input type="number" class="form-control" id="regresoHuevo" placeholder="0">
+                            <input type="number" class="form-control" id="regresoHuevo" placeholder="0" oninput="calcularTotalEntregar()">
                         </div>
                         <div class="form-group">
                             <label>❄️ Congelados ($)</label>
-                            <input type="number" step="0.01" class="form-control" id="regresoCongelados" placeholder="0">
+                            <input type="number" step="0.01" class="form-control" id="regresoCongelados" placeholder="0" oninput="calcularTotalEntregar()">
                         </div>
                     </div>
 
-                    <button class="btn btn-secondary" onclick="guardarRegreso()">✅ Guardar Regreso</button>
+                    <!-- TOTAL A ENTREGAR -->
+                    <div class="total-entregar" id="totalEntregarBox">
+                        <p>💵 TOTAL A ENTREGAR</p>
+                        <div class="monto" id="totalEntregarMonto">$0.00</div>
+                    </div>
+
+                    <div class="desglose" id="desgloseCalculo">
+                        <p><span>Venta de pollo:</span> <span id="ventaPolloMonto">$0.00</span></p>
+                        <p><span>+ Caja inicial:</span> <span id="cajaMonto">$0.00</span></p>
+                        <p><span>- Huevos:</span> <span id="huevosMonto">$0.00</span></p>
+                        <p><span>- Congelados:</span> <span id="congeladosMonto">$0.00</span></p>
+                    </div>
+
+                    <button class="btn btn-secondary" style="margin-top: 20px;" onclick="guardarRegreso()">✅ Guardar Regreso</button>
                 </div>
             </div>
         </div>
@@ -356,6 +399,7 @@
         let salidas = [];
         let negocios = [];
         let salidaSeleccionada = null;
+        const PRECIO_HUEVO = 5; // Precio por huevo
 
         // ==========================================
         // INICIALIZACIÓN
@@ -461,49 +505,33 @@
         }
 
         // ==========================================
-        // LISTA DE SALIDAS
+        // LISTA DE SALIDAS (SOLO PENDIENTES)
         // ==========================================
         function actualizarListaSalidas() {
-            // Salidas pendientes
+            // SOLO salidas pendientes (no completadas)
             const pendientes = salidas.filter(s => !s.completo);
             const containerPendientes = document.getElementById('salidasPendientes');
             
             if (pendientes.length === 0) {
-                containerPendientes.innerHTML = '<div class="empty-state"><p>No hay salidas pendientes</p></div>';
+                containerPendientes.innerHTML = '<div class="empty-state"><p>🎉 No hay salidas pendientes</p></div>';
             } else {
                 containerPendientes.innerHTML = '';
                 pendientes.forEach(salida => {
                     const total = salida.salida.pechuga + salida.salida.pierna + salida.salida.ala + salida.salida.retazo;
-                    const [year, month, day] = salida.fecha.split('-');
+                    
+                    // Corregir fecha (evitar problema de zona horaria)
+                    const fechaPartes = salida.fecha.split('-');
+                    const fechaMostrar = `${fechaPartes[2]}/${fechaPartes[1]}/${fechaPartes[0]}`;
+                    
+                    // Obtener caja del negocio
+                    const negocio = negocios.find(n => n.id === salida.negocioId);
+                    const caja = negocio ? negocio.cajaInicial : 0;
                     
                     containerPendientes.innerHTML += `
                         <div class="salida-card" onclick="seleccionarSalida('${salida.firebaseKey}')">
                             <h3>${salida.negocio}</h3>
-                            <p>📅 ${day}/${month}/${year} | 📦 ${total.toFixed(1)} kg</p>
-                        </div>
-                    `;
-                });
-            }
-
-            // Salidas completadas
-            const completadas = salidas.filter(s => s.completo);
-            const containerCompletadas = document.getElementById('salidasCompletadas');
-            
-            if (completadas.length === 0) {
-                containerCompletadas.innerHTML = '<div class="empty-state"><p>No hay registros completados</p></div>';
-            } else {
-                containerCompletadas.innerHTML = '';
-                completadas.slice().reverse().slice(0, 5).forEach(salida => {
-                    const totalVenta = (salida.salida.pechuga - (salida.regreso?.pechuga || 0)) +
-                                      (salida.salida.pierna - (salida.regreso?.pierna || 0)) +
-                                      (salida.salida.ala - (salida.regreso?.ala || 0)) +
-                                      (salida.salida.retazo - (salida.regreso?.retazo || 0));
-                    const [year, month, day] = salida.fecha.split('-');
-                    
-                    containerCompletadas.innerHTML += `
-                        <div style="background: #d1fae5; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #10b981;">
-                            <h4 style="color: #065f46;">${salida.negocio}</h4>
-                            <p style="color: #047857; font-size: 0.9rem;">📅 ${day}/${month}/${year} | 💰 Venta: ${totalVenta.toFixed(1)} kg | 📈 $${(salida.gananciaCalculada || 0).toFixed(2)}</p>
+                            <p>📅 ${fechaMostrar} | 📦 ${total.toFixed(1)} kg</p>
+                            <div class="caja-info">💰 Caja: $${caja.toFixed(2)}</div>
                         </div>
                     `;
                 });
@@ -521,14 +549,22 @@
                 return;
             }
 
+            // Obtener negocio y caja
+            const negocio = negocios.find(n => n.id === salidaSeleccionada.negocioId);
+            const caja = negocio ? negocio.cajaInicial : 0;
+
+            // Corregir fecha
+            const fechaPartes = salidaSeleccionada.fecha.split('-');
+            const fechaMostrar = `${fechaPartes[2]}/${fechaPartes[1]}/${fechaPartes[0]}`;
+
             // Mostrar info de la salida
-            const [year, month, day] = salidaSeleccionada.fecha.split('-');
             document.getElementById('salidaInfo').innerHTML = `
                 <h4 style="margin-bottom: 10px;">${salidaSeleccionada.negocio}</h4>
-                <p>📅 Fecha: ${day}/${month}/${year}</p>
+                <p>📅 Fecha: ${fechaMostrar}</p>
                 <p style="margin-top: 10px;"><strong>📦 Salida:</strong></p>
                 <p>🍗 Pechuga: ${salidaSeleccionada.salida.pechuga} kg | 🍖 Pierna: ${salidaSeleccionada.salida.pierna} kg</p>
                 <p>🍖 Ala: ${salidaSeleccionada.salida.ala} kg | 🥩 Retazo: ${salidaSeleccionada.salida.retazo} kg</p>
+                <div class="caja-info" style="margin-top: 15px;">💰 Caja del negocio: $${caja.toFixed(2)}</div>
             `;
 
             // Limpiar formulario
@@ -538,6 +574,9 @@
             document.getElementById('regresoRetazo').value = '';
             document.getElementById('regresoHuevo').value = '';
             document.getElementById('regresoCongelados').value = '';
+
+            // Calcular total inicial
+            calcularTotalEntregar();
 
             // Mostrar formulario
             document.getElementById('listaSalidasView').style.display = 'none';
@@ -550,6 +589,58 @@
             document.getElementById('regresoFormView').style.display = 'none';
         }
 
+        // ==========================================
+        // CALCULAR TOTAL A ENTREGAR (EN TIEMPO REAL)
+        // ==========================================
+        function calcularTotalEntregar() {
+            if (!salidaSeleccionada) return;
+
+            const regreso = {
+                pechuga: parseFloat(document.getElementById('regresoPechuga').value) || 0,
+                pierna: parseFloat(document.getElementById('regresoPierna').value) || 0,
+                ala: parseFloat(document.getElementById('regresoAla').value) || 0,
+                retazo: parseFloat(document.getElementById('regresoRetazo').value) || 0
+            };
+
+            const huevos = parseInt(document.getElementById('regresoHuevo').value) || 0;
+            const congelados = parseFloat(document.getElementById('regresoCongelados').value) || 0;
+
+            // Obtener negocio
+            const negocio = negocios.find(n => n.id === salidaSeleccionada.negocioId);
+            const precios = negocio ? negocio.precios : { pechuga: 0, pierna: 0, ala: 0, retazo: 0 };
+            const caja = negocio ? negocio.cajaInicial : 0;
+
+            // Calcular venta (salida - regreso)
+            const venta = {
+                pechuga: salidaSeleccionada.salida.pechuga - regreso.pechuga,
+                pierna: salidaSeleccionada.salida.pierna - regreso.pierna,
+                ala: salidaSeleccionada.salida.ala - regreso.ala,
+                retazo: salidaSeleccionada.salida.retazo - regreso.retazo
+            };
+
+            // Calcular total venta en dinero
+            const ventaPollo = (venta.pechuga * precios.pechuga) +
+                              (venta.pierna * precios.pierna) +
+                              (venta.ala * precios.ala) +
+                              (venta.retazo * precios.retazo);
+
+            // Calcular valor huevos
+            const valorHuevos = huevos * PRECIO_HUEVO;
+
+            // TOTAL A ENTREGAR = Venta + Caja - Huevos - Congelados
+            const totalEntregar = ventaPollo + caja - valorHuevos - congelados;
+
+            // Actualizar UI
+            document.getElementById('ventaPolloMonto').textContent = `$${ventaPollo.toFixed(2)}`;
+            document.getElementById('cajaMonto').textContent = `$${caja.toFixed(2)}`;
+            document.getElementById('huevosMonto').textContent = `$${valorHuevos.toFixed(2)}`;
+            document.getElementById('congeladosMonto').textContent = `$${congelados.toFixed(2)}`;
+            document.getElementById('totalEntregarMonto').textContent = `$${totalEntregar.toFixed(2)}`;
+        }
+
+        // ==========================================
+        // GUARDAR REGRESO
+        // ==========================================
         function guardarRegreso() {
             if (!salidaSeleccionada) {
                 alert('Error: No hay salida seleccionada');
@@ -563,8 +654,13 @@
                 retazo: parseFloat(document.getElementById('regresoRetazo').value) || 0
             };
 
-            const huevo = parseInt(document.getElementById('regresoHuevo').value) || 0;
+            const huevos = parseInt(document.getElementById('regresoHuevo').value) || 0;
             const congelados = parseFloat(document.getElementById('regresoCongelados').value) || 0;
+
+            // Obtener negocio
+            const negocio = negocios.find(n => n.id === salidaSeleccionada.negocioId);
+            const precios = negocio ? negocio.precios : { pechuga: 0, pierna: 0, ala: 0, retazo: 0 };
+            const caja = negocio ? negocio.cajaInicial : 0;
 
             // Calcular venta
             const venta = {
@@ -574,37 +670,38 @@
                 retazo: salidaSeleccionada.salida.retazo - regreso.retazo
             };
 
-            // Obtener precios del negocio
-            const negocio = negocios.find(n => n.id === salidaSeleccionada.negocioId);
-            const precios = negocio ? negocio.precios : { pechuga: 0, pierna: 0, ala: 0, retazo: 0 };
-
             // Calcular total venta
-            const totalVenta = (venta.pechuga * precios.pechuga) +
+            const ventaPollo = (venta.pechuga * precios.pechuga) +
                               (venta.pierna * precios.pierna) +
                               (venta.ala * precios.ala) +
                               (venta.retazo * precios.retazo);
+
+            const valorHuevos = huevos * PRECIO_HUEVO;
+            const totalEntregar = ventaPollo + caja - valorHuevos - congelados;
 
             // Calcular ganancia usando porcentaje guardado
             const porcentaje = salidaSeleccionada.porcentajeGanancia || 0;
             let gananciaCalculada = 0;
             
             if (porcentaje > 0) {
-                const costo = totalVenta / (1 + (porcentaje / 100));
-                gananciaCalculada = totalVenta - costo;
+                const costo = ventaPollo / (1 + (porcentaje / 100));
+                gananciaCalculada = ventaPollo - costo;
             }
 
             // Actualizar salida en Firebase
             database.ref('salidas/' + salidaSeleccionada.firebaseKey).update({
                 regreso: regreso,
-                huevo: huevo,
+                huevo: huevos,
                 congelados: congelados,
                 completo: true,
+                ventaPollo: ventaPollo,
+                totalEntregar: totalEntregar,
                 gananciaCalculada: gananciaCalculada,
                 registradoPor: usuarioActual.nombre,
                 fechaRegreso: new Date().toISOString()
             });
 
-            alert('✅ Regreso guardado correctamente\n\n💰 Ganancia calculada: $' + gananciaCalculada.toFixed(2));
+            alert(`✅ Regreso guardado\n\n💵 Total a entregar: $${totalEntregar.toFixed(2)}`);
             volverALista();
         }
 
