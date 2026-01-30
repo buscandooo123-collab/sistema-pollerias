@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Regreso</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2.5rem;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-group { margin-bottom: 20px; }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #ef4444;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #ef4444;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover { background: #dc2626; }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .card {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .salida-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s;
+        }
+
+        .salida-card:hover {
+            border-color: #ef4444;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .product-item {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .product-item input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .resumen-financiero {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .resumen-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .total-entregar {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 APP REGRESO</h1>
+            <p id="fechaActual"></p>
+        </div>
+
+        <!-- LOGIN -->
+        <div id="loginScreen" class="content">
+            <div class="alert alert-info">
+                💡 Ingresa con tu usuario y contraseña de la App Madre
+            </div>
+
+            <div class="form-group">
+                <label>Usuario</label>
+                <input type="text" class="form-control" id="loginUsuario" placeholder="Tu usuario">
+            </div>
+
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" class="form-control" id="loginPassword" placeholder="Tu contraseña">
+            </div>
+
+            <button class="btn btn-primary" onclick="iniciarSesion()">Iniciar Sesión</button>
+            <button class="btn btn-secondary" onclick="verUsuarios()">🔍 Ver Usuarios</button>
+        </div>
+
+        <!-- APP -->
+        <div id="appScreen" class="content hidden">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                <div>
+                    <h2 id="nombreUsuario" style="color: #ef4444;"></h2>
+                    <p style="color: #6b7280;">Usuario conectado</p>
+                </div>
+                <button class="btn btn-danger" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+
+            <!-- SALIDAS PENDIENTES -->
+            <div id="salidasContainer">
+                <h2 style="margin-bottom: 20px;">📋 Salidas Pendientes</h2>
+                <div class="alert alert-info">
+                    Selecciona una salida para registrar su regreso
+                </div>
+                <div id="salidasLista"></div>
+            </div>
+
+            <!-- FORMULARIO REGRESO -->
+            <div id="formularioRegreso" class="hidden">
+                <button class="btn btn-secondary" onclick="volverSalidas()" style="margin-bottom: 20px;">← Volver</button>
+
+                <div class="card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;">
+                    <h3>📦 Salida Seleccionada</h3>
+                    <div style="margin-top: 15px;">
+                        <strong>Negocio:</strong> <span id="negocioSel"></span><br>
+                        <strong>Fecha:</strong> <span id="fechaSel"></span><br>
+                        <strong>💰 Caja:</strong> <span id="cajaSel"></span>
+                    </div>
+                </div>
+
+                <div class="card" style="background: #dbeafe;">
+                    <h4 style="color: #1e40af;">📦 QUE SALIÓ</h4>
+                    <div class="product-grid">
+                        <div><strong>🍗</strong> <span id="outPechuga">0</span> kg</div>
+                        <div><strong>🍖</strong> <span id="outPierna">0</span> kg</div>
+                        <div><strong>🍖</strong> <span id="outAla">0</span> kg</div>
+                        <div><strong>🥩</strong> <span id="outRetazo">0</span> kg</div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 15px 0;">Productos que Regresan</h3>
+                <div class="product-grid">
+                    <div class="product-item">
+                        <h4>🍗 Pechuga</h4>
+                        <input type="number" id="inPechuga" placeholder="0.0" min="0" step="0.1" oninput="calcular()">
+                    </div>
+                    <div class="product-item">
+                        <h4>🍖 Pierna</h4>
+                        <input type="number" id="inPierna" placeholder="0.0" min="0" step="0.1" oninput="calcular()">
+                    </div>
+                    <div class="product-item">
+                        <h4>🍖 Ala</h4>
+                        <input type="number" id="inAla" placeholder="0.0" min="0" step="0.1" oninput="calcular()">
+                    </div>
+                    <div class="product-item">
+                        <h4>🥩 Retazo</h4>
+                        <input type="number" id="inRetazo" placeholder="0.0" min="0" step="0.1" oninput="calcular()">
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 15px 0;">Otros Productos</h3>
+                <div class="product-grid">
+                    <div class="card" style="background: #fef3c7; text-align: center;">
+                        <h4 style="color: #92400e;">🥚 Huevo</h4>
+                        <input type="number" class="form-control" id="inHuevo" placeholder="0" min="0" oninput="calcular()" style="text-align: center;">
+                        <small>unidades vendidas</small>
+                    </div>
+                    <div class="card" style="background: #dbeafe; text-align: center;">
+                        <h4 style="color: #1e40af;">❄️ Congelados</h4>
+                        <input type="number" class="form-control" id="inCongelados" placeholder="0.00" min="0" step="0.01" oninput="calcular()" style="text-align: center;">
+                        <small>pesos vendidos</small>
+                    </div>
+                </div>
+
+                <!-- RESUMEN FINANCIERO -->
+                <div class="resumen-financiero">
+                    <h2 style="text-align: center; margin-bottom: 20px;">💰 RESUMEN FINANCIERO</h2>
+                    
+                    <div class="resumen-grid">
+                        <div class="resumen-item">
+                            <h4>🍗 Venta Productos</h4>
+                            <div id="ventaDet" style="margin-top: 10px; font-size: 0.9rem;"></div>
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.3);">
+                                <strong>Subtotal: <span id="subProd">$0</span></strong>
+                            </div>
+                        </div>
+
+                        <div class="resumen-item">
+                            <h4>💵 Otros Ingresos</h4>
+                            <div style="margin-top: 10px; font-size: 0.9rem;">
+                                💰 Caja: <span id="cajaRes">$0</span><br>
+                                🥚 Huevo: <span id="huevoRes">0</span><br>
+                                ❄️ Congelados: <span id="congRes">$0</span>
+                            </div>
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.3);">
+                                <strong>Subtotal: <span id="subOtros">$0</span></strong>
+                            </div>
+                        </div>
+
+                        <div class="resumen-item">
+                            <h4>📈 Ganancia</h4>
+                            <p style="font-size: 0.85rem; opacity: 0.8;">Solo productos</p>
+                            <div style="font-size: 2.5rem; font-weight: 700; color: #fbbf24; text-align: center;" id="ganancia">$0</div>
+                        </div>
+                    </div>
+
+                    <div class="total-entregar">
+                        <h2 style="margin-bottom: 10px;">💵 TOTAL A ENTREGAR</h2>
+                        <p style="opacity: 0.9; margin-bottom: 15px;">Venta + Caja + Huevo + Congelados</p>
+                        <div style="font-size: 3.5rem; font-weight: 700;" id="totalEntregar">$0.00</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="registrar()" style="flex: 1;">✓ Registrar</button>
+                    <button class="btn btn-danger" onclick="limpiar()">✗ Limpiar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let usuarioActual = null;
+        let salidaSel = null;
+        let negocios = [];
+        let salidas = [];
+
+        function init() {
+            console.log('🚀 App Regreso iniciando...');
+            
+            mostrarFecha();
+            verificarSesion();
+            
+            console.log('✅ App Regreso lista');
+        }
+
+        function mostrarFecha() {
+            document.getElementById('fechaActual').textContent = new Date().toLocaleDateString('es-ES', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+        }
+
+        function verificarSesion() {
+            const sesion = localStorage.getItem('sesion_app_regreso');
+            if (sesion) {
+                usuarioActual = JSON.parse(sesion);
+                mostrarApp();
+            }
+        }
+
+        // ================ LOGIN ================
+        
+        function iniciarSesion() {
+            const usuario = document.getElementById('loginUsuario').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!usuario || !password) {
+                alert('Completa los campos');
+                return;
+            }
+
+            console.log('Intento de login:', usuario);
+            
+            // ⭐⭐⭐ CARGAR USUARIOS FRESCOS DESDE localStorage ⭐⭐⭐
+            const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+            console.log('Usuarios disponibles:', usuarios);
+
+            const found = usuarios.find(u => 
+                u.usuario.toLowerCase() === usuario.toLowerCase() && 
+                u.password === password
+            );
+
+            if (found) {
+                usuarioActual = found;
+                localStorage.setItem('sesion_app_regreso', JSON.stringify(usuarioActual));
+                console.log('✅ Login exitoso');
+                mostrarApp();
+            } else {
+                const existe = usuarios.find(u => u.usuario.toLowerCase() === usuario.toLowerCase());
+                
+                if (existe) {
+                    alert('❌ Contraseña incorrecta');
+                } else {
+                    alert(`❌ Usuario no encontrado\n\nUsuarios disponibles:\n${usuarios.map(u => `- ${u.usuario}`).join('\n')}\n\nTotal: ${usuarios.length}`);
+                }
+            }
+        }
+
+        function verUsuarios() {
+            const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+            
+            let msg = '👥 USUARIOS DISPONIBLES\n\n';
+            
+            if (usuarios.length === 0) {
+                msg += '⚠️ NO HAY USUARIOS\n\n';
+                msg += 'Ve a App Madre y crea usuarios\n';
+                msg += 'Luego intenta login (sin recargar)';
+            } else {
+                msg += `Total: ${usuarios.length}\n\n`;
+                usuarios.forEach((u, i) => {
+                    msg += `${i+1}. ${u.usuario} - ${u.nombre}\n`;
+                });
+            }
+            
+            alert(msg);
+        }
+
+        function mostrarApp() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appScreen').classList.remove('hidden');
+            document.getElementById('nombreUsuario').textContent = usuarioActual.nombre;
+            
+            cargarSalidas();
+        }
+
+        function cerrarSesion() {
+            if (confirm('¿Cerrar sesión?')) {
+                localStorage.removeItem('sesion_app_regreso');
+                location.reload();
+            }
+        }
+
+        // ================ SALIDAS ================
+        
+        function cargarSalidas() {
+            // ⭐ RECARGAR SALIDAS FRESCAS DESDE localStorage ⭐
+            salidas = JSON.parse(localStorage.getItem('salidas') || '[]');
+            negocios = JSON.parse(localStorage.getItem('negocios') || '[]');
+            
+            console.log('📦 Salidas cargadas:', salidas);
+            
+            const pendientes = salidas.filter(s => !s.completo);
+            const lista = document.getElementById('salidasLista');
+            
+            if (pendientes.length === 0) {
+                lista.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 40px;">✓ No hay salidas pendientes</p>';
+                return;
+            }
+
+            lista.innerHTML = '';
+            
+            pendientes.forEach(sal => {
+                const total = sal.salida.pechuga + sal.salida.pierna + sal.salida.ala + sal.salida.retazo;
+                
+                // ⭐ CONVERTIR FECHA SIN PROBLEMA DE ZONA HORARIA ⭐
+                const [year, month, day] = sal.fecha.split('-');
+                const fechaMostrar = `${day}/${month}/${year}`;
+                
+                console.log(`Salida: ${sal.negocio}, Fecha guardada: ${sal.fecha}, Fecha mostrada: ${fechaMostrar}`);
+                
+                lista.innerHTML += `
+                    <div class="salida-card" onclick="seleccionar(${sal.id})">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div>
+                                <h3 style="color: #ef4444;">${sal.negocio}</h3>
+                                <p style="color: #6b7280;">${fechaMostrar}</p>
+                                <div style="margin-top: 10px;">
+                                    🍗 ${sal.salida.pechuga} | 🍖 ${sal.salida.pierna} | 🍖 ${sal.salida.ala} | 🥩 ${sal.salida.retazo}
+                                </div>
+                            </div>
+                            <div style="background: #ef4444; color: white; padding: 15px; border-radius: 10px; text-align: center;">
+                                <div style="font-size: 0.85rem;">Total</div>
+                                <div style="font-size: 1.8rem; font-weight: 700;">${total.toFixed(1)} kg</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function seleccionar(id) {
+            salidaSel = salidas.find(s => s.id === id);
+            const negocio = negocios.find(n => n.id === salidaSel.negocioId);
+            
+            document.getElementById('salidasContainer').classList.add('hidden');
+            document.getElementById('formularioRegreso').classList.remove('hidden');
+            
+            // ⭐ CONVERTIR FECHA SIN PROBLEMA DE ZONA HORARIA ⭐
+            const [year, month, day] = salidaSel.fecha.split('-');
+            const fechaMostrar = `${day}/${month}/${year}`;
+            
+            document.getElementById('negocioSel').textContent = salidaSel.negocio;
+            document.getElementById('fechaSel').textContent = fechaMostrar;
+            document.getElementById('cajaSel').textContent = `$${negocio.cajaInicial.toFixed(2)}`;
+            
+            document.getElementById('outPechuga').textContent = salidaSel.salida.pechuga;
+            document.getElementById('outPierna').textContent = salidaSel.salida.pierna;
+            document.getElementById('outAla').textContent = salidaSel.salida.ala;
+            document.getElementById('outRetazo').textContent = salidaSel.salida.retazo;
+            
+            calcular();
+        }
+
+        function volverSalidas() {
+            document.getElementById('salidasContainer').classList.remove('hidden');
+            document.getElementById('formularioRegreso').classList.add('hidden');
+            salidaSel = null;
+            limpiar();
+        }
+
+        // ================ CALCULAR ================
+        
+        function calcular() {
+            if (!salidaSel) return;
+
+            const negocio = negocios.find(n => n.id === salidaSel.negocioId);
+            const precios = negocio.precios;
+
+            const regreso = {
+                pechuga: parseFloat(document.getElementById('inPechuga').value) || 0,
+                pierna: parseFloat(document.getElementById('inPierna').value) || 0,
+                ala: parseFloat(document.getElementById('inAla').value) || 0,
+                retazo: parseFloat(document.getElementById('inRetazo').value) || 0
+            };
+
+            const venta = {
+                pechuga: salidaSel.salida.pechuga - regreso.pechuga,
+                pierna: salidaSel.salida.pierna - regreso.pierna,
+                ala: salidaSel.salida.ala - regreso.ala,
+                retazo: salidaSel.salida.retazo - regreso.retazo
+            };
+
+            const valorVenta = {
+                pechuga: venta.pechuga * precios.pechuga,
+                pierna: venta.pierna * precios.pierna,
+                ala: venta.ala * precios.ala,
+                retazo: venta.retazo * precios.retazo
+            };
+
+            const subtotalProd = valorVenta.pechuga + valorVenta.pierna + valorVenta.ala + valorVenta.retazo;
+
+            document.getElementById('ventaDet').innerHTML = `
+                🍗 ${venta.pechuga.toFixed(1)} kg × $${precios.pechuga} = $${valorVenta.pechuga.toFixed(2)}<br>
+                🍖 ${venta.pierna.toFixed(1)} kg × $${precios.pierna} = $${valorVenta.pierna.toFixed(2)}<br>
+                🍖 ${venta.ala.toFixed(1)} kg × $${precios.ala} = $${valorVenta.ala.toFixed(2)}<br>
+                🥩 ${venta.retazo.toFixed(1)} kg × $${precios.retazo} = $${valorVenta.retazo.toFixed(2)}
+            `;
+
+            document.getElementById('subProd').textContent = `$${subtotalProd.toFixed(2)}`;
+
+            // ⭐ USAR PORCENTAJE GUARDADO EN ESTA SALIDA ESPECÍFICA ⭐
+            let ganancia = 0;
+            const porcentaje = salidaSel.porcentajeGanancia || 0;
+            
+            if (porcentaje > 0) {
+                const costo = subtotalProd / (1 + porcentaje / 100);
+                ganancia = subtotalProd - costo;
+            } else {
+                ganancia = 0;
+            }
+
+            document.getElementById('ganancia').textContent = `$${ganancia.toFixed(2)}`;
+
+            // Mostrar porcentaje usado
+            const porcentajeInfo = porcentaje > 0 ? 
+                `<br><small style="color: #059669;">📊 Porcentaje: ${porcentaje.toFixed(2)}%</small>` :
+                `<br><small style="color: #dc2626;">⚠️ Sin porcentaje guardado</small>`;
+            
+            document.getElementById('ganancia').innerHTML = `$${ganancia.toFixed(2)}${porcentajeInfo}`;
+
+            const huevo = parseFloat(document.getElementById('inHuevo').value) || 0;
+            const congelados = parseFloat(document.getElementById('inCongelados').value) || 0;
+
+            document.getElementById('cajaRes').textContent = `$${negocio.cajaInicial.toFixed(2)}`;
+            document.getElementById('huevoRes').textContent = `${huevo} unidades`;
+            document.getElementById('congRes').textContent = `$${congelados.toFixed(2)}`;
+
+            const subtotalOtros = negocio.cajaInicial + congelados;
+            document.getElementById('subOtros').textContent = `$${subtotalOtros.toFixed(2)}`;
+
+            const total = subtotalProd + subtotalOtros;
+            document.getElementById('totalEntregar').textContent = `$${total.toFixed(2)}`;
+        }
+
+        // ================ REGISTRAR ================
+        
+        function registrar() {
+            if (!salidaSel) return;
+
+            const regreso = {
+                salidaId: salidaSel.id,
+                usuario: usuarioActual.nombre,
+                fecha: salidaSel.fecha, // ⭐ USAR FECHA DE LA SALIDA ORIGINAL
+                cantidades: {
+                    pechuga: parseFloat(document.getElementById('inPechuga').value) || 0,
+                    pierna: parseFloat(document.getElementById('inPierna').value) || 0,
+                    ala: parseFloat(document.getElementById('inAla').value) || 0,
+                    retazo: parseFloat(document.getElementById('inRetazo').value) || 0
+                },
+                huevo: parseFloat(document.getElementById('inHuevo').value) || 0,
+                congelados: parseFloat(document.getElementById('inCongelados').value) || 0,
+                gananciaCalculada: parseFloat(document.getElementById('ganancia').textContent.replace('$', '')) || 0 // ⭐ GUARDAR GANANCIA
+            };
+
+            const regresos = JSON.parse(localStorage.getItem('regresos') || '[]');
+            regresos.push(regreso);
+            localStorage.setItem('regresos', JSON.stringify(regresos));
+
+            // ⭐ MARCAR LA SALIDA COMO COMPLETA EN SALIDAS ⭐
+            const salidasActualizadas = JSON.parse(localStorage.getItem('salidas') || '[]');
+            const salidaIndex = salidasActualizadas.findIndex(s => s.id === salidaSel.id);
+            
+            if (salidaIndex !== -1) {
+                salidasActualizadas[salidaIndex].completo = true;
+                salidasActualizadas[salidaIndex].regreso = regreso.cantidades;
+                salidasActualizadas[salidaIndex].huevo = regreso.huevo;
+                salidasActualizadas[salidaIndex].congelados = regreso.congelados;
+                salidasActualizadas[salidaIndex].gananciaCalculada = regreso.gananciaCalculada; // ⭐ GUARDAR GANANCIA EN SALIDA
+                localStorage.setItem('salidas', JSON.stringify(salidasActualizadas));
+            }
+
+            const ganancia = document.getElementById('ganancia').textContent;
+            const total = document.getElementById('totalEntregar').textContent;
+
+            alert(`✓ Regreso registrado\n\nNegocio: ${salidaSel.negocio}\nUsuario: ${usuarioActual.nombre}\n\n💰 Ganancia: ${ganancia}\n💵 Total a entregar: ${total}`);
+
+            volverSalidas();
+            cargarSalidas();
+        }
+
+        function limpiar() {
+            document.getElementById('inPechuga').value = '';
+            document.getElementById('inPierna').value = '';
+            document.getElementById('inAla').value = '';
+            document.getElementById('inRetazo').value = '';
+            document.getElementById('inHuevo').value = '';
+            document.getElementById('inCongelados').value = '';
+            calcular();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

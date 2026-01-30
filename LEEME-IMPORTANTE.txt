@@ -1,0 +1,103 @@
+# 📦 SISTEMA DE POLLERÍAS - ARCHIVOS COMPLETOS ACTUALIZADOS
+
+## ✅ CAMBIOS INCLUIDOS:
+
+1. **Página de inicio actualizada** - Solo muestra App Regreso (App Madre oculta)
+2. **App Madre** - Versión final con todos los fixes
+3. **App Regreso** - Versión final con todos los fixes
+4. **Configuración de Vercel** - Lista para desplegar
+
+---
+
+## 📂 ESTRUCTURA DE ARCHIVOS:
+
+```
+sistema-pollerias-FINAL/
+├── vercel.json
+├── GUIA_DEPLOYMENT.html
+└── public/
+    ├── index.html (ACTUALIZADO - solo muestra App Regreso)
+    ├── manifest.json
+    ├── sw.js
+    ├── madre/
+    │   └── index.html (App Madre completa)
+    └── regreso/
+        └── index.html (App Regreso completa)
+```
+
+---
+
+## 🚀 CÓMO ACTUALIZAR TU REPOSITORIO:
+
+### OPCIÓN 1: GitHub Desktop (Recomendado)
+
+1. **Abre GitHub Desktop**
+
+2. **Abre la carpeta del repositorio:**
+   - Repository → Show in Explorer
+   - O ve a: `C:\Users\TuUsuario\Documents\GitHub\sistema-pollerias`
+
+3. **BORRAR TODO** lo que está dentro de la carpeta (excepto la carpeta oculta `.git`)
+
+4. **Copiar TODO** el contenido de `sistema-pollerias-FINAL` a la carpeta del repositorio
+
+5. **En GitHub Desktop:**
+   - Verás todos los cambios
+   - Summary: "Actualización - Ocultar App Madre"
+   - Click "Commit to main"
+   - Click "Push origin"
+
+6. **Espera 1-2 minutos** - Vercel actualizará automáticamente
+
+---
+
+### OPCIÓN 2: Desde la Web de GitHub
+
+1. **Ve a tu repositorio:** https://github.com/buscandooo123-collab/sistema-pollerias
+
+2. **Borra TODOS los archivos viejos** (uno por uno)
+
+3. **Sube los archivos nuevos:**
+   - Add file → Upload files
+   - Arrastra TODO el contenido de `sistema-pollerias-FINAL`
+   - Commit
+
+---
+
+## 🔐 URLs FINALES:
+
+**Públicas (para encargados):**
+- https://sistema-pollerias.vercel.app/ → Solo muestra App Regreso
+- https://sistema-pollerias.vercel.app/regreso/ → App Regreso
+
+**Privadas (solo para ti):**
+- https://sistema-pollerias.vercel.app/madre/ → App Madre (oculta)
+
+---
+
+## ✨ CARACTERÍSTICAS:
+
+✅ Página de inicio solo muestra App Regreso
+✅ App Madre oculta (solo accesible por URL directa)
+✅ Datos compartidos entre ambas apps
+✅ Cálculo de ganancias con porcentaje individual por salida
+✅ Sistema de usuarios completo
+✅ Calculadora de porcentajes
+✅ Instalable como PWA en celular
+✅ Funciona offline
+
+---
+
+## 📱 INSTALAR EN CELULAR:
+
+**Android:**
+1. Abre la URL en Chrome
+2. Menú (⋮) → "Agregar a pantalla de inicio"
+
+**iPhone:**
+1. Abre la URL en Safari
+2. Compartir (□↑) → "Agregar a pantalla de inicio"
+
+---
+
+¡Listo para desplegar! 🚀
