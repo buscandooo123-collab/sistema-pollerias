@@ -323,10 +323,6 @@
                             <label>❄️ Congelados ($)</label>
                             <input type="number" step="0.01" class="form-control" id="regresoCongelados" placeholder="0" oninput="calcularTotalEntregar()">
                         </div>
-                        <div class="form-group">
-                            <label>💵 Caja ($)</label>
-                            <input type="number" step="0.01" class="form-control" id="regresoCaja" placeholder="0" oninput="calcularTotalEntregar()">
-                        </div>
                     </div>
 
                     <!-- RESUMEN DE DINERO A ENTREGAR -->
@@ -339,7 +335,7 @@
                             <div style="text-align: right;" id="ventaHuevos">$0.00</div>
                             <div>❄️ Congelados:</div>
                             <div style="text-align: right;" id="ventaCongelados">$0.00</div>
-                            <div>💵 Caja:</div>
+                            <div>💵 Caja Inicial:</div>
                             <div style="text-align: right;" id="ventaCaja">$0.00</div>
                         </div>
                         <div style="border-top: 2px solid rgba(255,255,255,0.5); margin-top: 15px; padding-top: 15px; display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 700;">
@@ -585,7 +581,6 @@
             document.getElementById('regresoRetazo').value = '';
             document.getElementById('regresoHuevo').value = '';
             document.getElementById('regresoCongelados').value = '';
-            document.getElementById('regresoCaja').value = '';
 
             // Resetear resumen
             calcularTotalEntregar();
@@ -613,7 +608,11 @@
 
             const huevo = parseFloat(document.getElementById('regresoHuevo').value) || 0;
             const congelados = parseFloat(document.getElementById('regresoCongelados').value) || 0;
-            const caja = parseFloat(document.getElementById('regresoCaja').value) || 0;
+
+            // Obtener datos del negocio (incluyendo caja inicial)
+            const negocio = negocios.find(n => n.id === salidaSeleccionada.negocioId);
+            const precios = negocio ? negocio.precios : { pechuga: 0, pierna: 0, ala: 0, retazo: 0 };
+            const cajaInicial = negocio ? (negocio.cajaInicial || 0) : 0;
 
             // Calcular venta de productos
             const venta = {
@@ -623,24 +622,20 @@
                 retazo: salidaSeleccionada.salida.retazo - regreso.retazo
             };
 
-            // Obtener precios del negocio
-            const negocio = negocios.find(n => n.id === salidaSeleccionada.negocioId);
-            const precios = negocio ? negocio.precios : { pechuga: 0, pierna: 0, ala: 0, retazo: 0 };
-
             // Calcular total venta de productos
             const ventaProductos = (venta.pechuga * precios.pechuga) +
                                    (venta.pierna * precios.pierna) +
                                    (venta.ala * precios.ala) +
                                    (venta.retazo * precios.retazo);
 
-            // Total a entregar
-            const totalEntregar = ventaProductos + huevo + congelados + caja;
+            // Total a entregar (productos + huevo + congelados + caja inicial del negocio)
+            const totalEntregar = ventaProductos + huevo + congelados + cajaInicial;
 
             // Actualizar resumen visual
             document.getElementById('ventaProductos').textContent = '$' + ventaProductos.toFixed(2);
             document.getElementById('ventaHuevos').textContent = '$' + huevo.toFixed(2);
             document.getElementById('ventaCongelados').textContent = '$' + congelados.toFixed(2);
-            document.getElementById('ventaCaja').textContent = '$' + caja.toFixed(2);
+            document.getElementById('ventaCaja').textContent = '$' + cajaInicial.toFixed(2);
             document.getElementById('totalEntregar').textContent = '$' + totalEntregar.toFixed(2);
         }
 
@@ -659,7 +654,11 @@
 
             const huevo = parseFloat(document.getElementById('regresoHuevo').value) || 0;
             const congelados = parseFloat(document.getElementById('regresoCongelados').value) || 0;
-            const caja = parseFloat(document.getElementById('regresoCaja').value) || 0;
+
+            // Obtener datos del negocio (incluyendo caja inicial)
+            const negocio = negocios.find(n => n.id === salidaSeleccionada.negocioId);
+            const precios = negocio ? negocio.precios : { pechuga: 0, pierna: 0, ala: 0, retazo: 0 };
+            const cajaInicial = negocio ? (negocio.cajaInicial || 0) : 0;
 
             // Calcular venta
             const venta = {
@@ -669,18 +668,14 @@
                 retazo: salidaSeleccionada.salida.retazo - regreso.retazo
             };
 
-            // Obtener precios del negocio
-            const negocio = negocios.find(n => n.id === salidaSeleccionada.negocioId);
-            const precios = negocio ? negocio.precios : { pechuga: 0, pierna: 0, ala: 0, retazo: 0 };
-
             // Calcular total venta de productos
             const totalVentaProductos = (venta.pechuga * precios.pechuga) +
                                         (venta.pierna * precios.pierna) +
                                         (venta.ala * precios.ala) +
                                         (venta.retazo * precios.retazo);
 
-            // Total a entregar (productos + huevo + congelados + caja)
-            const totalEntregar = totalVentaProductos + huevo + congelados + caja;
+            // Total a entregar (productos + huevo + congelados + caja inicial)
+            const totalEntregar = totalVentaProductos + huevo + congelados + cajaInicial;
 
             // Calcular ganancia usando porcentaje guardado
             const porcentaje = salidaSeleccionada.porcentajeGanancia || 0;
@@ -696,7 +691,7 @@
                 regreso: regreso,
                 huevo: huevo,
                 congelados: congelados,
-                caja: caja,
+                cajaInicial: cajaInicial,
                 totalEntregar: totalEntregar,
                 completo: true,
                 gananciaCalculada: gananciaCalculada,
