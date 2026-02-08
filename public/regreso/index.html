@@ -226,9 +226,68 @@
             .header h1 { font-size: 1.5rem; }
             .grid-2 { grid-template-columns: 1fr; }
         }
+
+        /* Modal de confirmación */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+        }
+        .modal-box p {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            color: #374151;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-cancelar {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        .btn-confirmar {
+            background: #10b981;
+            color: white;
+        }
     </style>
 </head>
 <body>
+    <!-- MODAL DE CONFIRMACIÓN -->
+    <div class="modal-overlay" id="modalConfirmar">
+        <div class="modal-box">
+            <p>¿Estás seguro de guardar registro?</p>
+            <div class="modal-buttons">
+                <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn-confirmar" onclick="confirmarGuardar()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- LOGIN -->
     <div class="login-container" id="loginContainer">
         <div class="login-box">
@@ -614,10 +673,16 @@
                 return;
             }
 
-            // Confirmar antes de guardar
-            if (!confirm('¿Estás seguro de guardar registro?')) {
-                return;
-            }
+            // Mostrar modal de confirmación
+            document.getElementById('modalConfirmar').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalConfirmar').style.display = 'none';
+        }
+
+        function confirmarGuardar() {
+            cerrarModal();
 
             const regreso = {
                 pechuga: parseFloat(document.getElementById('regresoPechuga').value) || 0,
