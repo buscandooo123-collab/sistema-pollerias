@@ -1,0 +1,8 @@
+{
+  "name": "App Regreso - Pollerías",
+  "short_name": "Regreso",
+  "start_url": "/regreso/",
+  "display": "standalone",
+  "background_color": "#ef4444",
+  "theme_color": "#ef4444"
+}
