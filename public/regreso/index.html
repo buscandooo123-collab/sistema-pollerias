@@ -381,9 +381,7 @@
                     <div id="resumenEntregar" style="background: linear-gradient(135deg, #10b981, #059669); padding: 20px; border-radius: 12px; color: white; margin: 20px 0;">
                         <h4 style="margin-bottom: 15px; text-align: center;">💵 TOTAL A ENTREGAR</h4>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;">
-                            <div id="labelPolloEntero" style="display: none;">🐔 Pollo Entero:</div>
-                            <div id="ventaPolloEntero" style="text-align: right; display: none;">$0.00</div>
-                            <div>🍗 Venta Piezas:</div>
+                            <div>🍗 Venta Productos:</div>
                             <div style="text-align: right;" id="ventaProductos">$0.00</div>
                             <div>🥚 Huevos:</div>
                             <div style="text-align: right;" id="ventaHuevos">$0.00</div>
@@ -634,11 +632,6 @@
         function calcularTotalEntregar() {
             if (!salidaSeleccionada) return;
 
-            // Pollo entero: se cobra completo (kg × precio venta)
-            const polloEnteroKg = salidaSeleccionada.polloEntero || 0;
-            const precioVentaPolloEntero = salidaSeleccionada.precioVentaPolloEntero || 0;
-            const ventaPolloEntero = polloEnteroKg * precioVentaPolloEntero;
-
             // Piezas que regresan
             const regreso = {
                 pechuga: parseFloat(document.getElementById('regresoPechuga').value) || 0,
@@ -655,43 +648,48 @@
             const precios = negocio ? negocio.precios : { pechuga: 0, pierna: 0, ala: 0, retazo: 0 };
             const cajaInicial = negocio ? (negocio.cajaInicial || 0) : 0;
 
-            // Calcular valor de piezas que regresan (dinero que NO entrega)
-            const valorPiezasRegreso = (regreso.pechuga * precios.pechuga) +
-                                       (regreso.pierna * precios.pierna) +
-                                       (regreso.ala * precios.ala) +
-                                       (regreso.retazo * precios.retazo);
-
-            // Calcular venta de piezas
-            let ventaPiezas = 0;
+            // Piezas que salieron (de salida normal + pollo entero convertido)
+            const salidaData = salidaSeleccionada.salida || { pechuga: 0, pierna: 0, ala: 0, retazo: 0 };
+            const polloEnteroKg = salidaSeleccionada.polloEntero || 0;
+            
+            // Si llevó pollo entero, las piezas de salida incluyen el pollo entero
+            // El pollo entero se convierte: sumamos los kg a las piezas de salida proporcionalmente
+            // Pero más simple: calculamos venta = (salida - regreso) para piezas
+            // Y para pollo entero: venta = pollo entero valorizado - piezas que regresan
+            
+            let ventaProductos = 0;
             
             if (polloEnteroKg > 0) {
-                // Si llevó pollo entero: el regreso son piezas que NO vendió (se resta del pollo entero)
-                // ventaPiezas queda en 0, pero el valor de regreso se resta del total
-                ventaPiezas = -valorPiezasRegreso; // Las piezas que regresan se descuentan
+                // Llevó pollo entero: se valora con precio de venta del pollo entero
+                const precioVentaPolloEntero = salidaSeleccionada.precioVentaPolloEntero || 0;
+                const valorPolloEntero = polloEnteroKg * precioVentaPolloEntero;
+                
+                // Las piezas que regresan se descuentan (valoradas con precios de piezas)
+                const valorPiezasRegreso = (regreso.pechuga * precios.pechuga) +
+                                           (regreso.pierna * precios.pierna) +
+                                           (regreso.ala * precios.ala) +
+                                           (regreso.retazo * precios.retazo);
+                
+                ventaProductos = valorPolloEntero - valorPiezasRegreso;
             } else {
-                // Si llevó piezas: venta = salida - regreso
+                // Llevó piezas: venta = (salida - regreso) × precios
                 const venta = {
-                    pechuga: salidaSeleccionada.salida.pechuga - regreso.pechuga,
-                    pierna: salidaSeleccionada.salida.pierna - regreso.pierna,
-                    ala: salidaSeleccionada.salida.ala - regreso.ala,
-                    retazo: salidaSeleccionada.salida.retazo - regreso.retazo
+                    pechuga: salidaData.pechuga - regreso.pechuga,
+                    pierna: salidaData.pierna - regreso.pierna,
+                    ala: salidaData.ala - regreso.ala,
+                    retazo: salidaData.retazo - regreso.retazo
                 };
-                ventaPiezas = (venta.pechuga * precios.pechuga) +
-                              (venta.pierna * precios.pierna) +
-                              (venta.ala * precios.ala) +
-                              (venta.retazo * precios.retazo);
+                ventaProductos = (venta.pechuga * precios.pechuga) +
+                                 (venta.pierna * precios.pierna) +
+                                 (venta.ala * precios.ala) +
+                                 (venta.retazo * precios.retazo);
             }
 
             // Total a entregar
-            const totalEntregar = ventaPolloEntero + ventaPiezas + huevo + congelados + cajaInicial;
+            const totalEntregar = ventaProductos + huevo + congelados + cajaInicial;
 
             // Actualizar resumen visual
-            if (polloEnteroKg > 0) {
-                document.getElementById('ventaPolloEntero').textContent = '$' + ventaPolloEntero.toFixed(2);
-                document.getElementById('ventaProductos').textContent = '-$' + valorPiezasRegreso.toFixed(2);
-            } else {
-                document.getElementById('ventaProductos').textContent = '$' + ventaPiezas.toFixed(2);
-            }
+            document.getElementById('ventaProductos').textContent = '$' + ventaProductos.toFixed(2);
             document.getElementById('ventaHuevos').textContent = '$' + huevo.toFixed(2);
             document.getElementById('ventaCongelados').textContent = '$' + congelados.toFixed(2);
             document.getElementById('ventaCaja').textContent = '$' + cajaInicial.toFixed(2);
@@ -715,11 +713,6 @@
         function confirmarGuardar() {
             cerrarModal();
 
-            // Pollo entero: se cobra completo
-            const polloEnteroKg = salidaSeleccionada.polloEntero || 0;
-            const precioVentaPolloEntero = salidaSeleccionada.precioVentaPolloEntero || 0;
-            const ventaPolloEntero = polloEnteroKg * precioVentaPolloEntero;
-
             // Piezas que regresan
             const regreso = {
                 pechuga: parseFloat(document.getElementById('regresoPechuga').value) || 0,
@@ -736,51 +729,54 @@
             const precios = negocio ? negocio.precios : { pechuga: 0, pierna: 0, ala: 0, retazo: 0 };
             const cajaInicial = negocio ? (negocio.cajaInicial || 0) : 0;
 
-            // Calcular valor de piezas que regresan
-            const valorPiezasRegreso = (regreso.pechuga * precios.pechuga) +
-                                       (regreso.pierna * precios.pierna) +
-                                       (regreso.ala * precios.ala) +
-                                       (regreso.retazo * precios.retazo);
-
-            // Calcular venta de piezas
-            let ventaPiezas = 0;
+            // Piezas que salieron
+            const salidaData = salidaSeleccionada.salida || { pechuga: 0, pierna: 0, ala: 0, retazo: 0 };
+            const polloEnteroKg = salidaSeleccionada.polloEntero || 0;
+            
+            let ventaProductos = 0;
             
             if (polloEnteroKg > 0) {
-                // Si llevó pollo entero: las piezas que regresan se descuentan
-                ventaPiezas = -valorPiezasRegreso;
+                // Llevó pollo entero: se valora con precio de venta del pollo entero
+                const precioVentaPolloEntero = salidaSeleccionada.precioVentaPolloEntero || 0;
+                const valorPolloEntero = polloEnteroKg * precioVentaPolloEntero;
+                
+                // Las piezas que regresan se descuentan
+                const valorPiezasRegreso = (regreso.pechuga * precios.pechuga) +
+                                           (regreso.pierna * precios.pierna) +
+                                           (regreso.ala * precios.ala) +
+                                           (regreso.retazo * precios.retazo);
+                
+                ventaProductos = valorPolloEntero - valorPiezasRegreso;
             } else {
-                // Si llevó piezas: venta = salida - regreso
+                // Llevó piezas: venta = (salida - regreso) × precios
                 const venta = {
-                    pechuga: salidaSeleccionada.salida.pechuga - regreso.pechuga,
-                    pierna: salidaSeleccionada.salida.pierna - regreso.pierna,
-                    ala: salidaSeleccionada.salida.ala - regreso.ala,
-                    retazo: salidaSeleccionada.salida.retazo - regreso.retazo
+                    pechuga: salidaData.pechuga - regreso.pechuga,
+                    pierna: salidaData.pierna - regreso.pierna,
+                    ala: salidaData.ala - regreso.ala,
+                    retazo: salidaData.retazo - regreso.retazo
                 };
-                ventaPiezas = (venta.pechuga * precios.pechuga) +
-                              (venta.pierna * precios.pierna) +
-                              (venta.ala * precios.ala) +
-                              (venta.retazo * precios.retazo);
+                ventaProductos = (venta.pechuga * precios.pechuga) +
+                                 (venta.pierna * precios.pierna) +
+                                 (venta.ala * precios.ala) +
+                                 (venta.retazo * precios.retazo);
             }
 
             // Total a entregar
-            const totalEntregar = ventaPolloEntero + ventaPiezas + huevo + congelados + cajaInicial;
+            const totalEntregar = ventaProductos + huevo + congelados + cajaInicial;
 
-            // Calcular ganancia usando porcentaje guardado
+            // Calcular ganancia usando porcentaje guardado (aplica igual para pollo entero o piezas)
             const porcentaje = salidaSeleccionada.porcentajeGanancia || 0;
             let gananciaCalculada = 0;
             
-            if (porcentaje > 0) {
-                // Para pollo entero, la ganancia se calcula sobre el total (pollo entero - piezas regreso)
-                const ventaTotal = polloEnteroKg > 0 ? (ventaPolloEntero + ventaPiezas) : ventaPiezas;
-                const costo = ventaTotal / (1 + (porcentaje / 100));
-                gananciaCalculada = ventaTotal - costo;
+            if (porcentaje > 0 && ventaProductos > 0) {
+                const costo = ventaProductos / (1 + (porcentaje / 100));
+                gananciaCalculada = ventaProductos - costo;
             }
 
             // Actualizar salida en Firebase
             database.ref('salidas/' + salidaSeleccionada.firebaseKey).update({
                 regreso: regreso,
-                ventaPolloEntero: ventaPolloEntero,
-                valorPiezasRegreso: valorPiezasRegreso,
+                ventaProductos: ventaProductos,
                 huevo: huevo,
                 congelados: congelados,
                 cajaInicial: cajaInicial,
@@ -788,6 +784,11 @@
                 completo: true,
                 gananciaCalculada: gananciaCalculada,
                 registradoPor: usuarioActual.nombre,
+                fechaRegreso: new Date().toISOString()
+            });
+
+            volverALista();
+        }
                 fechaRegreso: new Date().toISOString()
             });
 
