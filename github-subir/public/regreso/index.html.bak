@@ -571,8 +571,7 @@
             } else {
                 containerPendientes.innerHTML = '';
                 pendientes.forEach(salida => {
-                    const salidaData = salida.salida || { pechuga: 0, pierna: 0, ala: 0, retazo: 0 };
-                    const total = (salidaData.pechuga || 0) + (salidaData.pierna || 0) + (salidaData.ala || 0) + (salidaData.retazo || 0);
+                    const total = salida.salida.pechuga + salida.salida.pierna + salida.salida.ala + salida.salida.retazo;
                     const [year, month, day] = salida.fecha.split('-');
                     
                     containerPendientes.innerHTML += `
@@ -605,10 +604,8 @@
 
             // Mostrar/ocultar línea de pollo entero en resumen
             const tienePolloEntero = (salidaSeleccionada.polloEntero || 0) > 0;
-            const labelPE = document.getElementById('labelPolloEntero');
-            const ventaPE = document.getElementById('ventaPolloEntero');
-            if (labelPE) labelPE.style.display = tienePolloEntero ? 'block' : 'none';
-            if (ventaPE) ventaPE.style.display = tienePolloEntero ? 'block' : 'none';
+            document.getElementById('labelPolloEntero').style.display = tienePolloEntero ? 'block' : 'none';
+            document.getElementById('ventaPolloEntero').style.display = tienePolloEntero ? 'block' : 'none';
 
             // Limpiar formulario
             document.getElementById('regresoPechuga').value = '';
@@ -787,6 +784,11 @@
                 completo: true,
                 gananciaCalculada: gananciaCalculada,
                 registradoPor: usuarioActual.nombre,
+                fechaRegreso: new Date().toISOString()
+            });
+
+            volverALista();
+        }
                 fechaRegreso: new Date().toISOString()
             });
 
